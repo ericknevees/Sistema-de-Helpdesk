@@ -1,0 +1,6 @@
+{
+  "name": "Embrag TI Helpdesk",
+  "description": "Sistema corporativo de Helpdesk e suporte técnico com autenticação Google restrita para e-mails corporativos (@embrag.com.br).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

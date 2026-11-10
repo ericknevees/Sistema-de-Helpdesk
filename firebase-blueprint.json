@@ -1,0 +1,150 @@
+{
+  "entities": {
+    "Ticket": {
+      "title": "Ticket",
+      "description": "Chamado de suporte técnico no Helpdesk Embrag",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "code": { "type": "string" },
+        "title": { "type": "string", "maxLength": 200 },
+        "description": { "type": "string", "maxLength": 5000 },
+        "category": { "type": "string" },
+        "priority": { "type": "string", "enum": ["baixa", "media", "alta", "urgente"] },
+        "status": { "type": "string", "enum": ["novo", "em_atendimento", "aguardando_usuario", "resolvido", "fechado"] },
+        "department": { "type": "string" },
+        "workstationLocation": { "type": "string", "maxLength": 200 },
+        "requesterUid": { "type": "string" },
+        "requesterName": { "type": "string", "maxLength": 120 },
+        "requesterEmail": { "type": "string", "maxLength": 150 },
+        "assignedToUid": { "type": "string" },
+        "assignedToName": { "type": "string", "maxLength": 120 },
+        "assignedToEmail": { "type": "string", "maxLength": 150 },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "resolvedAt": { "type": "string" },
+        "closedAt": { "type": "string" },
+        "slaDueDate": { "type": "string" },
+        "commentsCount": { "type": "number" }
+      },
+      "required": ["code", "title", "description", "category", "priority", "status", "department", "requesterUid", "requesterEmail", "createdAt"]
+    },
+    "TicketComment": {
+      "title": "TicketComment",
+      "description": "Comentário ou resposta na linha do tempo do chamado",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "ticketId": { "type": "string" },
+        "authorUid": { "type": "string" },
+        "authorName": { "type": "string", "maxLength": 120 },
+        "authorEmail": { "type": "string", "maxLength": 150 },
+        "authorRole": { "type": "string", "enum": ["admin", "agent", "user"] },
+        "content": { "type": "string", "maxLength": 3000 },
+        "createdAt": { "type": "string" },
+        "isInternalNote": { "type": "boolean" }
+      },
+      "required": ["ticketId", "authorUid", "authorName", "authorEmail", "content", "createdAt"]
+    },
+    "HelpdeskNotification": {
+      "title": "HelpdeskNotification",
+      "description": "Notificação em tempo real de criação, atualização ou atribuição de chamado",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "ticketId": { "type": "string" },
+        "ticketCode": { "type": "string" },
+        "type": { "type": "string", "enum": ["created", "status_updated", "assigned", "new_comment"] },
+        "title": { "type": "string", "maxLength": 200 },
+        "message": { "type": "string", "maxLength": 1000 },
+        "recipientEmail": { "type": "string", "maxLength": 150 },
+        "recipientName": { "type": "string", "maxLength": 120 },
+        "createdAt": { "type": "string" },
+        "read": { "type": "boolean" },
+        "emailSent": { "type": "boolean" },
+        "emailSubject": { "type": "string", "maxLength": 300 }
+      },
+      "required": ["ticketId", "ticketCode", "type", "title", "message", "recipientEmail", "createdAt"]
+    },
+    "CorporateConfig": {
+      "title": "CorporateConfig",
+      "description": "Configuração corporativa de domínios permitidos e SLA",
+      "type": "object",
+      "properties": {
+        "primaryDomain": { "type": "string" },
+        "emailNotificationsEnabled": { "type": "boolean" }
+      },
+      "required": ["primaryDomain"]
+    },
+    "Equipment": {
+      "title": "Equipment",
+      "description": "Ativo ou equipamento no Estoque Tecnológico da Embrag",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "internalCode": { "type": "string", "maxLength": 50 },
+        "assetTag": { "type": "string", "maxLength": 50 },
+        "name": { "type": "string", "maxLength": 200 },
+        "category": { "type": "string" },
+        "brand": { "type": "string", "maxLength": 100 },
+        "model": { "type": "string", "maxLength": 100 },
+        "serialNumber": { "type": "string", "maxLength": 100 },
+        "status": { "type": "string", "enum": ["disponivel", "em_uso", "reservado", "em_manutencao", "baixado"] },
+        "condition": { "type": "string", "enum": ["novo", "excelente", "bom", "regular", "danificado"] },
+        "branch": { "type": "string", "maxLength": 100 },
+        "department": { "type": "string", "maxLength": 100 },
+        "location": { "type": "string", "maxLength": 200 },
+        "entryDate": { "type": "string" },
+        "notes": { "type": "string", "maxLength": 3000 },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["internalCode", "name", "category", "brand", "model", "status", "condition", "branch", "department", "location", "entryDate", "createdAt", "updatedAt"]
+    },
+    "EquipmentMovement": {
+      "title": "EquipmentMovement",
+      "description": "Registro imutável de movimentação, entrega, devolução ou manutenção de equipamento",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "equipmentId": { "type": "string" },
+        "equipmentCode": { "type": "string" },
+        "equipmentName": { "type": "string" },
+        "type": { "type": "string" },
+        "newStatus": { "type": "string" },
+        "newLocation": { "type": "string" },
+        "performedByUid": { "type": "string" },
+        "performedByName": { "type": "string" },
+        "performedByEmail": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["equipmentId", "equipmentCode", "type", "newStatus", "newLocation", "performedByUid", "performedByName", "performedByEmail", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/tickets/{ticketId}": {
+      "schema": { "$ref": "#/entities/Ticket" },
+      "description": "Coleção principal de chamados corporativos"
+    },
+    "/tickets/{ticketId}/comments/{commentId}": {
+      "schema": { "$ref": "#/entities/TicketComment" },
+      "description": "Subcoleção de comentários e notas de atendimento por chamado"
+    },
+    "/notifications/{notificationId}": {
+      "schema": { "$ref": "#/entities/HelpdeskNotification" },
+      "description": "Notificações corporativas de chamados"
+    },
+    "/config/{configId}": {
+      "schema": { "$ref": "#/entities/CorporateConfig" },
+      "description": "Configurações institucionais da Embrag TI"
+    },
+    "/inventory/{equipmentId}": {
+      "schema": { "$ref": "#/entities/Equipment" },
+      "description": "Estoque Tecnológico - equipamentos corporativos sob custódia da TI (acesso admin)"
+    },
+    "/inventory_movements/{movementId}": {
+      "schema": { "$ref": "#/entities/EquipmentMovement" },
+      "description": "Histórico imutável de movimentações de equipamentos (acesso admin)"
+    }
+  }
+}

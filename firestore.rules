@@ -1,0 +1,37 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Allow application collections to read and write so real-time updates work
+    // seamlessly for both Google Workspace authenticated users and testing profiles.
+    match /tickets/{ticketId} {
+      allow read, write: if true;
+
+      match /comments/{commentId} {
+        allow read, write: if true;
+      }
+    }
+
+    match /notifications/{notificationId} {
+      allow read, write: if true;
+    }
+
+    match /config/{configId} {
+      allow read, write: if true;
+    }
+
+    match /audit_logs/{logId} {
+      allow read, create: if true;
+      allow update, delete: if false; // Audit logs remain strictly immutable
+    }
+
+    match /test/{docId} {
+      allow read, write: if true;
+    }
+
+    // Default deny for any other unspecified collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
