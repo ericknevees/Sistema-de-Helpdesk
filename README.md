@@ -1,4 +1,4 @@
-# Helpdesk & Gestão de Estoque Tecnológico • Embrag
+# Helpdesk & Gestão de Estoque Tecnológico
 
 <div align="center">
 
@@ -78,7 +78,7 @@ O **Helpdesk Embrag** foi desenvolvido para unificar o atendimento de chamados t
 
 #### Passo 1.1: Acesso Corporativo com Google SSO
 - O colaborador acessa o portal e clica em **"Entrar com Google"**.
-- O sistema valida a conta `@embrag.com.br` e identifica automaticamente seu nome, e-mail e departamento.
+- O sistema valida a conta `@empresa.com.br` e identifica automaticamente seu nome, e-mail e departamento.
 
 #### Passo 1.2: Abertura de Chamado de Suporte
 - Clique em **"+ Novo Chamado"**.
@@ -135,7 +135,7 @@ O **Helpdesk Embrag** foi desenvolvido para unificar o atendimento de chamados t
 ## 🗄 Arquitetura do Banco de Dados
 
 O banco de dados é operado no **Cloud Firestore** sob o ID de projeto:  
-`ai-studio-embragtihelpdesk-37ec10b9-03d7-4226-a63f-3fd3365d34ca`.
+`ai-studio-empresatihelpdesk-37ec10b9-03d7-4226-a63f-3fd3365d34ca`.
 
 ```
 ===================================================================================
