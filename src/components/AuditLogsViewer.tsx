@@ -131,7 +131,7 @@ export const AuditLogsViewer: React.FC<AuditLogsViewerProps> = ({ currentUser: _
                 className={`pl-8 pr-3 py-1.5 rounded-lg border text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500 ${
                   theme === 'dark'
                     ? 'bg-slate-950 border-slate-800 text-slate-200 placeholder-slate-500'
-                    : 'bg-slate-50 border-slate-200 text-slate-800 placeholder-slate-400'
+                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400'
                 }`}
               />
             </div>
@@ -139,10 +139,10 @@ export const AuditLogsViewer: React.FC<AuditLogsViewerProps> = ({ currentUser: _
             <select
               value={actionFilter}
               onChange={(e) => setActionFilter(e.target.value)}
-              className={`px-3 py-1.5 rounded-lg border text-xs font-medium focus:outline-none focus:ring-1 focus:ring-emerald-500 ${
+              className={`px-3 py-1.5 rounded-lg border text-xs font-medium focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer ${
                 theme === 'dark'
                   ? 'bg-slate-950 border-slate-800 text-slate-300'
-                  : 'bg-slate-50 border-slate-200 text-slate-700'
+                  : 'bg-white border-slate-300 text-slate-900'
               }`}
             >
               <option value="all">Todas as Ações</option>

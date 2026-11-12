@@ -15,6 +15,13 @@ import {
   saveCloudConfig,
   assignTicketSafely,
   recordAuditLog,
+  subscribeToEquipment,
+  saveCloudEquipment,
+  deleteCloudEquipment,
+  subscribeToEquipmentMovements,
+  saveCloudEquipmentMovement,
+  subscribeToDeliveryTerms,
+  saveCloudDeliveryTerm,
 } from './lib/firebase';
 import {
   CorporateConfig,
@@ -24,6 +31,10 @@ import {
   TicketPriority,
   TicketStatus,
   UserProfile,
+  Equipment,
+  EquipmentMovement,
+  DeliveryTerm,
+  GoogleAppsScriptSyncConfig,
 } from './types';
 import {
   addStoredComment,
@@ -34,6 +45,14 @@ import {
   saveCachedUser,
   saveStoredConfig,
   saveStoredTickets,
+  getStoredEquipment,
+  saveStoredEquipment,
+  getStoredMovements,
+  saveStoredMovements,
+  getStoredDeliveryTerms,
+  saveStoredDeliveryTerms,
+  getStoredGasConfig,
+  saveStoredGasConfig,
 } from './lib/storage';
 import {
   clearAllNotifications,
@@ -50,9 +69,11 @@ import { TicketList } from './components/TicketList';
 import { TicketKanban } from './components/TicketKanban';
 import { DashboardStats } from './components/DashboardStats';
 import { AuditLogsViewer } from './components/AuditLogsViewer';
+import { TechInventoryView } from './components/inventory/TechInventoryView';
 import { TicketDetailModal } from './components/TicketDetailModal';
 import { NewTicketModal } from './components/NewTicketModal';
 import { AdminSettingsModal } from './components/AdminSettingsModal';
+import { UserManualModal } from './components/UserManualModal';
 import { ToastAlert } from './components/ToastAlert';
 import { EmailPreviewModal } from './components/EmailPreviewModal';
 import { useTheme } from './context/ThemeContext';
@@ -64,11 +85,17 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => getCachedUser());
   const [authLoading, setAuthLoading] = useState<boolean>(true);
   const [tickets, setTickets] = useState<Ticket[]>(() => getStoredTickets());
+  const [equipments, setEquipments] = useState<Equipment[]>(() => getStoredEquipment());
+  const [movements, setMovements] = useState<EquipmentMovement[]>(() => getStoredMovements());
+  const [deliveryTerms, setDeliveryTerms] = useState<DeliveryTerm[]>(() => getStoredDeliveryTerms());
+  const [gasConfig, setGasConfig] = useState<GoogleAppsScriptSyncConfig>(() => getStoredGasConfig());
   const [notifications, setNotifications] = useState<HelpdeskNotification[]>(() => getStoredNotifications());
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [currentComments, setCurrentComments] = useState<TicketComment[]>([]);
   const [isNewTicketOpen, setIsNewTicketOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [manualModalOpen, setManualModalOpen] = useState(false);
+  const [manualInitialMode, setManualInitialMode] = useState<'user' | 'admin'>('user');
   const [viewMode, setViewMode] = useState<AppViewMode>('list');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -135,6 +162,47 @@ export default function App() {
           }
           return prevSelected;
         });
+      } else if (event.type === 'EQUIPMENT_CREATED') {
+        setEquipments((prev) => {
+          const exists = prev.some((e) => e.id === event.equipment.id);
+          if (exists) return prev;
+          const updated = [event.equipment, ...prev];
+          saveStoredEquipment(updated);
+          return updated;
+        });
+      } else if (event.type === 'EQUIPMENT_UPDATED') {
+        setEquipments((prev) => {
+          const updated = prev.map((e) => (e.id === event.equipment.id ? event.equipment : e));
+          saveStoredEquipment(updated);
+          return updated;
+        });
+      } else if (event.type === 'EQUIPMENT_DELETED') {
+        setEquipments((prev) => {
+          const updated = prev.filter((e) => e.id !== event.equipmentId);
+          saveStoredEquipment(updated);
+          return updated;
+        });
+      } else if (event.type === 'EQUIPMENT_MOVEMENT_RECORDED') {
+        setMovements((prev) => {
+          const exists = prev.some((m) => m.id === event.movement.id);
+          if (exists) return prev;
+          const updated = [event.movement, ...prev];
+          saveStoredMovements(updated);
+          return updated;
+        });
+      } else if (event.type === 'DELIVERY_TERM_SAVED') {
+        setDeliveryTerms((prev) => {
+          const idx = prev.findIndex((t) => t.id === event.term.id);
+          let updated: DeliveryTerm[];
+          if (idx >= 0) {
+            updated = [...prev];
+            updated[idx] = event.term;
+          } else {
+            updated = [event.term, ...prev];
+          }
+          saveStoredDeliveryTerms(updated);
+          return updated;
+        });
       }
     });
 
@@ -198,6 +266,64 @@ export default function App() {
       if (unsubscribe) unsubscribe();
     };
   }, [currentUser?.role, currentUser?.email]);
+
+  // Real-time Cloud Firestore inventory listener (Restricted to Administrators)
+  useEffect(() => {
+    if (!currentUser || currentUser.role !== 'admin') return;
+
+    const unsubscribeEq = subscribeToEquipment(
+      (cloudEquipments) => {
+        if (cloudEquipments.length > 0) {
+          setEquipments(cloudEquipments);
+          saveStoredEquipment(cloudEquipments);
+        } else {
+          // If Firestore is empty, seed initial equipment
+          const local = getStoredEquipment();
+          local.forEach((eq) => saveCloudEquipment(eq).catch(() => {}));
+        }
+      },
+      (err) => {
+        logger.warn('Fallback para cache de estoque:', err);
+      }
+    );
+
+    const unsubscribeMov = subscribeToEquipmentMovements(
+      null,
+      (cloudMovements) => {
+        if (cloudMovements.length > 0) {
+          setMovements(cloudMovements);
+          saveStoredMovements(cloudMovements);
+        } else {
+          const local = getStoredMovements();
+          local.forEach((m) => saveCloudEquipmentMovement(m).catch(() => {}));
+        }
+      },
+      (err) => {
+        logger.warn('Fallback para cache de movimentações:', err);
+      }
+    );
+
+    const unsubscribeTerms = subscribeToDeliveryTerms(
+      (cloudTerms) => {
+        if (cloudTerms.length > 0) {
+          setDeliveryTerms(cloudTerms);
+          saveStoredDeliveryTerms(cloudTerms);
+        } else {
+          const local = getStoredDeliveryTerms();
+          local.forEach((t) => saveCloudDeliveryTerm(t).catch(() => {}));
+        }
+      },
+      (err) => {
+        logger.warn('Fallback para cache de termos:', err);
+      }
+    );
+
+    return () => {
+      unsubscribeEq();
+      unsubscribeMov();
+      unsubscribeTerms();
+    };
+  }, [currentUser?.role]);
 
   // Real-time Cloud Firestore comments listener when a ticket is selected
   useEffect(() => {
@@ -627,6 +753,219 @@ export default function App() {
     }
   };
 
+  // Inventory Handlers (Restricted to Admin)
+  const handleSaveEquipment = async (equipment: Equipment, isNew: boolean) => {
+    let updatedList: Equipment[];
+    if (isNew) {
+      updatedList = [equipment, ...equipments];
+    } else {
+      updatedList = equipments.map((e) => (e.id === equipment.id ? equipment : e));
+    }
+
+    setEquipments(updatedList);
+    saveStoredEquipment(updatedList);
+
+    realtimeSync.broadcast({
+      type: isNew ? 'EQUIPMENT_CREATED' : 'EQUIPMENT_UPDATED',
+      equipment,
+    });
+
+    saveCloudEquipment(equipment).catch((e) => logger.warn('Sync cloud equipment', e));
+
+    if (currentUser) {
+      recordAuditLog({
+        id: `aud-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        action: isNew ? 'equipment_created' : 'equipment_updated',
+        performedByUid: currentUser.uid,
+        performedByEmail: currentUser.email,
+        performedByName: currentUser.name,
+        performedByRole: currentUser.role,
+        details: `${isNew ? 'Cadastro de equipamento' : 'Edição de equipamento'}: ${equipment.internalCode} - ${equipment.name}`,
+        timestamp: new Date().toISOString(),
+        metadata: {
+          internalCode: equipment.internalCode,
+          category: equipment.category,
+          status: equipment.status,
+        },
+      });
+    }
+  };
+
+  const handleSaveMovement = async (movement: EquipmentMovement, updatedEquipment: Equipment) => {
+    // 1. Update equipment state & storage
+    const updatedEquipments = equipments.map((e) =>
+      e.id === updatedEquipment.id ? updatedEquipment : e
+    );
+    setEquipments(updatedEquipments);
+    saveStoredEquipment(updatedEquipments);
+
+    // 2. Update movements state & storage
+    const updatedMovements = [movement, ...movements];
+    setMovements(updatedMovements);
+    saveStoredMovements(updatedMovements);
+
+    // 3. Cross-tab instant broadcast (<2ms)
+    realtimeSync.broadcast({ type: 'EQUIPMENT_UPDATED', equipment: updatedEquipment });
+    realtimeSync.broadcast({ type: 'EQUIPMENT_MOVEMENT_RECORDED', movement });
+
+    // 4. Cloud Firestore persistence
+    saveCloudEquipment(updatedEquipment).catch((e) => logger.warn('Sync cloud equipment', e));
+    saveCloudEquipmentMovement(movement).catch((e) => logger.warn('Sync cloud movement', e));
+
+    if (currentUser) {
+      recordAuditLog({
+        id: `aud-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        action: 'equipment_moved',
+        performedByUid: currentUser.uid,
+        performedByEmail: currentUser.email,
+        performedByName: currentUser.name,
+        performedByRole: currentUser.role,
+        details: `Movimentação de equipamento (${movement.type}): ${updatedEquipment.internalCode} - ${updatedEquipment.name}. Nova localização: ${movement.newLocation}. Novo status: ${movement.newStatus}`,
+        timestamp: new Date().toISOString(),
+        metadata: {
+          equipmentId: updatedEquipment.id,
+          type: movement.type,
+          newStatus: movement.newStatus,
+          assignedTo: movement.newAssignedTo,
+          location: movement.newLocation,
+        },
+      });
+    }
+  };
+
+  const handleUpdateEquipmentPhotos = async (equipmentId: string, newPhotos: string[]) => {
+    const found = equipments.find((e) => e.id === equipmentId);
+    if (!found) return;
+
+    const updated: Equipment = {
+      ...found,
+      photos: newPhotos,
+      updatedAt: new Date().toISOString(),
+    };
+
+    const updatedList = equipments.map((e) => (e.id === equipmentId ? updated : e));
+    setEquipments(updatedList);
+    saveStoredEquipment(updatedList);
+
+    realtimeSync.broadcast({ type: 'EQUIPMENT_UPDATED', equipment: updated });
+    saveCloudEquipment(updated).catch((e) => logger.warn('Sync cloud equipment photos', e));
+  };
+
+  const handleSaveDeliveryTerm = async (term: DeliveryTerm) => {
+    const existing = deliveryTerms;
+    const idx = existing.findIndex((t) => t.id === term.id);
+    let updated: DeliveryTerm[];
+    if (idx >= 0) {
+      updated = [...existing];
+      updated[idx] = term;
+    } else {
+      updated = [term, ...existing];
+    }
+
+    setDeliveryTerms(updated);
+    saveStoredDeliveryTerms(updated);
+
+    realtimeSync.broadcast({ type: 'DELIVERY_TERM_SAVED', term });
+    saveCloudDeliveryTerm(term).catch((e) => logger.warn('Sync cloud delivery term', e));
+
+    if (currentUser) {
+      recordAuditLog({
+        id: `aud-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        action: term.status === 'assinado' ? 'delivery_term_signed' : 'delivery_term_created',
+        performedByUid: currentUser.uid,
+        performedByEmail: currentUser.email,
+        performedByName: currentUser.name,
+        performedByRole: currentUser.role,
+        details: `Termo de Entrega (${term.protocol}) ${
+          term.status === 'assinado' ? 'assinado digitalmente por' : 'gerado para'
+        }: ${term.recipientName} (${term.equipmentCode} - ${term.equipmentName})`,
+        timestamp: new Date().toISOString(),
+        metadata: {
+          termId: term.id,
+          protocol: term.protocol,
+          recipientEmail: term.recipientEmail,
+          status: term.status,
+          equipmentId: term.equipmentId,
+        },
+      });
+    }
+  };
+
+  const handleSaveGasConfig = (newConfig: GoogleAppsScriptSyncConfig) => {
+    setGasConfig(newConfig);
+    saveStoredGasConfig(newConfig);
+  };
+
+  const handleImportEquipments = async (importedList: Partial<Equipment>[]): Promise<number> => {
+    let count = 0;
+    const nowIso = new Date().toISOString();
+    const newEquipments: Equipment[] = [];
+
+    importedList.forEach((item, index) => {
+      const code = item.internalCode || `EQP-${Date.now() + index}`;
+      const existing = equipments.find(
+        (e) => e.internalCode.toLowerCase() === code.toLowerCase()
+      );
+
+      if (existing) {
+        const merged: Equipment = {
+          ...existing,
+          ...item,
+          id: existing.id,
+          updatedAt: nowIso,
+        };
+        saveCloudEquipment(merged).catch(() => {});
+        count++;
+      } else {
+        const full: Equipment = {
+          id: `eqp-${Date.now()}-${index}-${Math.random().toString(36).slice(2, 6)}`,
+          internalCode: code,
+          assetTag: item.assetTag || '',
+          name: item.name || `${item.brand || 'Equipamento'} ${item.model || ''}`.trim(),
+          category: item.category || 'notebook',
+          brand: item.brand || 'Embrag',
+          model: item.model || 'Corporativo',
+          serialNumber: item.serialNumber || '',
+          status: item.status || 'disponivel',
+          condition: item.condition || 'bom',
+          branch: item.branch || 'Matriz - São Paulo',
+          department: item.department || 'Operações',
+          location: item.location || 'Estoque TI',
+          assignedTo: item.assignedTo || null,
+          entryDate: item.entryDate || nowIso.split('T')[0],
+          notes: item.notes || '',
+          photos: item.photos || [],
+          createdAt: nowIso,
+          updatedAt: nowIso,
+        };
+        newEquipments.push(full);
+        saveCloudEquipment(full).catch(() => {});
+        count++;
+      }
+    });
+
+    if (newEquipments.length > 0) {
+      const mergedAll = [...newEquipments, ...equipments];
+      setEquipments(mergedAll);
+      saveStoredEquipment(mergedAll);
+    }
+
+    if (currentUser) {
+      recordAuditLog({
+        id: `aud-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        action: 'gas_sync_performed',
+        performedByUid: currentUser.uid,
+        performedByEmail: currentUser.email,
+        performedByName: currentUser.name,
+        performedByRole: currentUser.role,
+        details: `Sincronização / Importação de estoque via Google Apps Script: ${count} aparelhos processados.`,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    return count;
+  };
+
   // Neutral Initial Loading State (Verifying Auth Session)
   if (authLoading) {
     return (
@@ -681,6 +1020,10 @@ export default function App() {
         mobileOpen={mobileSidebarOpen}
         onCloseMobile={() => setMobileSidebarOpen(false)}
         openTicketsCount={openTicketsCount}
+        onOpenManual={(mode = 'user') => {
+          setManualInitialMode(mode);
+          setManualModalOpen(true);
+        }}
       />
 
       {/* Main Content Area */}
@@ -725,6 +1068,28 @@ export default function App() {
           {viewMode === 'stats' && <DashboardStats tickets={tickets} />}
 
           {viewMode === 'audit' && <AuditLogsViewer currentUser={currentUser} />}
+
+          {viewMode === 'inventory' && (
+            currentUser.role === 'admin' ? (
+              <TechInventoryView
+                equipments={equipments}
+                movements={movements}
+                deliveryTerms={deliveryTerms}
+                gasConfig={gasConfig}
+                currentUser={currentUser}
+                onSaveEquipment={handleSaveEquipment}
+                onSaveMovement={handleSaveMovement}
+                onUpdateEquipmentPhotos={handleUpdateEquipmentPhotos}
+                onSaveDeliveryTerm={handleSaveDeliveryTerm}
+                onSaveGasConfig={handleSaveGasConfig}
+                onImportEquipments={handleImportEquipments}
+              />
+            ) : (
+              <div className="p-8 text-center text-rose-500 font-bold bg-rose-500/10 border border-rose-500/20 rounded-2xl">
+                Acesso Negado: O Estoque Tecnológico é restrito exclusivamente aos Administradores do Helpdesk.
+              </div>
+            )
+          )}
         </main>
       </div>
 
@@ -777,6 +1142,14 @@ export default function App() {
           onOpenTicket={(ticketId) => handleSelectTicketById(ticketId)}
         />
       )}
+
+      {/* Illustrated User & Admin Manuals Modal */}
+      <UserManualModal
+        isOpen={manualModalOpen}
+        onClose={() => setManualModalOpen(false)}
+        currentUser={currentUser}
+        initialMode={manualInitialMode}
+      />
     </div>
   );
 }

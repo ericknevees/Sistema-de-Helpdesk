@@ -32,6 +32,9 @@ import {
   UserProfile,
   UserRole,
   UserRoleAssignment,
+  Equipment,
+  EquipmentMovement,
+  DeliveryTerm,
 } from '../types';
 import { logger } from './monitoring';
 
@@ -459,4 +462,140 @@ export async function saveCloudConfig(config: CorporateConfig): Promise<void> {
     console.warn('Erro ao salvar configuração no Cloud Firestore:', error);
   }
 }
+
+// ==========================================
+// ESTOQUE TECNOLÓGICO - SERVIÇOS FIRESTORE
+// ==========================================
+
+/**
+ * Escuta equipamentos em tempo real no Firestore (ordem decrescente por updatedAt)
+ */
+export function subscribeToEquipment(
+  onUpdate: (equipments: Equipment[]) => void,
+  onError?: (err: any) => void
+) {
+  const q = query(collection(db, 'inventory'), orderBy('updatedAt', 'desc'));
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const equipments: Equipment[] = [];
+      snapshot.forEach((docSnap) => {
+        equipments.push(docSnap.data() as Equipment);
+      });
+      onUpdate(equipments);
+    },
+    (err) => {
+      console.warn('Fallback no listener de equipamentos do Firestore:', err);
+      if (onError) onError(err);
+    }
+  );
+}
+
+/**
+ * Salva ou atualiza um equipamento no Cloud Firestore
+ */
+export async function saveCloudEquipment(equipment: Equipment): Promise<void> {
+  try {
+    await setDoc(doc(db, 'inventory', equipment.id), equipment);
+  } catch (error) {
+    handleFirestoreError(error, OperationType.WRITE, `inventory/${equipment.id}`);
+  }
+}
+
+/**
+ * Remove um equipamento no Cloud Firestore
+ */
+export async function deleteCloudEquipment(equipmentId: string): Promise<void> {
+  try {
+    await deleteDoc(doc(db, 'inventory', equipmentId));
+  } catch (error) {
+    handleFirestoreError(error, OperationType.DELETE, `inventory/${equipmentId}`);
+  }
+}
+
+/**
+ * Escuta o histórico de movimentações em tempo real no Firestore
+ */
+export function subscribeToEquipmentMovements(
+  equipmentId: string | null,
+  onUpdate: (movements: EquipmentMovement[]) => void,
+  onError?: (err: any) => void
+) {
+  const q = query(collection(db, 'inventory_movements'), orderBy('timestamp', 'desc'));
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const movements: EquipmentMovement[] = [];
+      snapshot.forEach((docSnap) => {
+        const item = docSnap.data() as EquipmentMovement;
+        if (!equipmentId || item.equipmentId === equipmentId) {
+          movements.push(item);
+        }
+      });
+      onUpdate(movements);
+    },
+    (err) => {
+      console.warn('Fallback no listener de movimentações:', err);
+      if (onError) onError(err);
+    }
+  );
+}
+
+/**
+ * Grava um registro imutável de movimentação no Cloud Firestore
+ */
+export async function saveCloudEquipmentMovement(movement: EquipmentMovement): Promise<void> {
+  try {
+    await setDoc(doc(db, 'inventory_movements', movement.id), movement);
+  } catch (error) {
+    handleFirestoreError(error, OperationType.WRITE, `inventory_movements/${movement.id}`);
+  }
+}
+
+/**
+ * Escuta os termos de entrega e responsabilidade no Firestore
+ */
+export function subscribeToDeliveryTerms(
+  onUpdate: (terms: DeliveryTerm[]) => void,
+  onError?: (err: any) => void
+) {
+  const q = query(collection(db, 'delivery_terms'), orderBy('createdAt', 'desc'));
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const terms: DeliveryTerm[] = [];
+      snapshot.forEach((docSnap) => {
+        terms.push(docSnap.data() as DeliveryTerm);
+      });
+      onUpdate(terms);
+    },
+    (err) => {
+      console.warn('Fallback no listener de termos de entrega:', err);
+      if (onError) onError(err);
+    }
+  );
+}
+
+/**
+ * Salva ou atualiza um termo de entrega no Cloud Firestore
+ */
+export async function saveCloudDeliveryTerm(term: DeliveryTerm): Promise<void> {
+  try {
+    await setDoc(doc(db, 'delivery_terms', term.id), term);
+  } catch (error) {
+    handleFirestoreError(error, OperationType.WRITE, `delivery_terms/${term.id}`);
+  }
+}
+
+/**
+ * Remove um termo de entrega no Cloud Firestore
+ */
+export async function deleteCloudDeliveryTerm(termId: string): Promise<void> {
+  try {
+    await deleteDoc(doc(db, 'delivery_terms', termId));
+  } catch (error) {
+    handleFirestoreError(error, OperationType.DELETE, `delivery_terms/${termId}`);
+  }
+}
+
 

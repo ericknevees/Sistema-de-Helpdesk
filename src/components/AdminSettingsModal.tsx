@@ -338,7 +338,7 @@ export const AdminSettingsModal: React.FC<AdminSettingsModalProps> = ({
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="space-y-1 sm:col-span-1">
-                    <label className="text-[11px] font-semibold text-slate-400">
+                    <label className={`text-[11px] font-semibold ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
                       E-mail Corporativo <span className="text-rose-400">*</span>
                     </label>
                     <input
@@ -347,12 +347,16 @@ export const AdminSettingsModal: React.FC<AdminSettingsModalProps> = ({
                       value={newRoleEmail}
                       onChange={(e) => setNewRoleEmail(e.target.value)}
                       placeholder="usuario@embrag.com.br"
-                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono"
+                      className={`w-full px-3 py-2 rounded-lg border text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono ${
+                        theme === 'dark'
+                          ? 'bg-slate-900 border-slate-700 text-slate-100 placeholder-slate-500'
+                          : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400'
+                      }`}
                     />
                   </div>
 
                   <div className="space-y-1 sm:col-span-1">
-                    <label className="text-[11px] font-semibold text-slate-400">
+                    <label className={`text-[11px] font-semibold ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
                       Nome / Função (Opcional)
                     </label>
                     <input
@@ -360,18 +364,26 @@ export const AdminSettingsModal: React.FC<AdminSettingsModalProps> = ({
                       value={newRoleName}
                       onChange={(e) => setNewRoleName(e.target.value)}
                       placeholder="Ex: Lucas Silveira - Suporte"
-                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      className={`w-full px-3 py-2 rounded-lg border text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 ${
+                        theme === 'dark'
+                          ? 'bg-slate-900 border-slate-700 text-slate-100 placeholder-slate-500'
+                          : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400'
+                      }`}
                     />
                   </div>
 
                   <div className="space-y-1 sm:col-span-1">
-                    <label className="text-[11px] font-semibold text-slate-400">
+                    <label className={`text-[11px] font-semibold ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
                       Perfil de Acesso <span className="text-rose-400">*</span>
                     </label>
                     <select
                       value={newRoleSelected}
                       onChange={(e) => setNewRoleSelected(e.target.value as UserRole)}
-                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-100 font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      className={`w-full px-3 py-2 rounded-lg border text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer ${
+                        theme === 'dark'
+                          ? 'bg-slate-900 border-slate-700 text-slate-100'
+                          : 'bg-white border-slate-300 text-slate-900'
+                      }`}
                     >
                       <option value="agent">🛠️ Técnico de TI (Suporte)</option>
                       <option value="admin">👑 Administrador de TI</option>
@@ -408,7 +420,11 @@ export const AdminSettingsModal: React.FC<AdminSettingsModalProps> = ({
                       value={searchRoleQuery}
                       onChange={(e) => setSearchRoleQuery(e.target.value)}
                       placeholder="Filtrar por nome ou e-mail..."
-                      className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      className={`w-full pl-8 pr-3 py-1.5 rounded-lg border text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 ${
+                        theme === 'dark'
+                          ? 'bg-slate-950 border-slate-800 text-slate-200 placeholder-slate-500'
+                          : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400'
+                      }`}
                     />
                   </div>
                 </div>
@@ -547,13 +563,21 @@ export const AdminSettingsModal: React.FC<AdminSettingsModalProps> = ({
                     onChange={(e) => setNewDomainInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddDomain())}
                     placeholder="novo-dominio.com.br"
-                    className="w-full pl-7 pr-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className={`w-full pl-7 pr-3 py-2 rounded-xl border text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 ${
+                      theme === 'dark'
+                        ? 'bg-slate-950 border-slate-800 text-slate-200 placeholder-slate-500'
+                        : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400'
+                    }`}
                   />
                 </div>
                 <button
                   type="button"
                   onClick={handleAddDomain}
-                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1 transition-colors"
+                  className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1 transition-colors ${
+                    theme === 'dark'
+                      ? 'bg-slate-800 hover:bg-slate-700 text-slate-200'
+                      : 'bg-slate-200 hover:bg-slate-300 text-slate-800'
+                  }`}
                 >
                   <Plus className="w-3.5 h-3.5" />
                   Adicionar Domínio
@@ -567,14 +591,18 @@ export const AdminSettingsModal: React.FC<AdminSettingsModalProps> = ({
             <div className="space-y-6">
               {/* SLA Deadlines */}
               <div className="space-y-3">
-                <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                  <Clock className="w-4 h-4 text-blue-400" />
+                <label className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${
+                  theme === 'dark' ? 'text-slate-300' : 'text-slate-700'
+                }`}>
+                  <Clock className="w-4 h-4 text-blue-500" />
                   Prazos Limites de SLA por Prioridade (Horas)
                 </label>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-                    <span className="text-xs font-semibold text-rose-300">Urgente</span>
+                  <div className={`p-3 rounded-xl border space-y-1 ${
+                    theme === 'dark' ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'
+                  }`}>
+                    <span className="text-xs font-semibold text-rose-500">Urgente</span>
                     <div className="flex items-center gap-2">
                       <input
                         type="number"
@@ -584,14 +612,20 @@ export const AdminSettingsModal: React.FC<AdminSettingsModalProps> = ({
                         onChange={(e) =>
                           setSlaHours({ ...slaHours, urgente: Number(e.target.value) })
                         }
-                        className="w-16 px-2 py-1 rounded bg-slate-900 border border-slate-700 text-xs text-white font-mono"
+                        className={`w-16 px-2 py-1 rounded border text-xs font-mono font-bold ${
+                          theme === 'dark'
+                            ? 'bg-slate-900 border-slate-700 text-white'
+                            : 'bg-white border-slate-300 text-slate-900'
+                        }`}
                       />
-                      <span className="text-xs text-slate-400">h</span>
+                      <span className="text-xs text-slate-500">h</span>
                     </div>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-                    <span className="text-xs font-semibold text-amber-300">Alta</span>
+                  <div className={`p-3 rounded-xl border space-y-1 ${
+                    theme === 'dark' ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'
+                  }`}>
+                    <span className="text-xs font-semibold text-amber-500">Alta</span>
                     <div className="flex items-center gap-2">
                       <input
                         type="number"
@@ -601,14 +635,20 @@ export const AdminSettingsModal: React.FC<AdminSettingsModalProps> = ({
                         onChange={(e) =>
                           setSlaHours({ ...slaHours, alta: Number(e.target.value) })
                         }
-                        className="w-16 px-2 py-1 rounded bg-slate-900 border border-slate-700 text-xs text-white font-mono"
+                        className={`w-16 px-2 py-1 rounded border text-xs font-mono font-bold ${
+                          theme === 'dark'
+                            ? 'bg-slate-900 border-slate-700 text-white'
+                            : 'bg-white border-slate-300 text-slate-900'
+                        }`}
                       />
-                      <span className="text-xs text-slate-400">h</span>
+                      <span className="text-xs text-slate-500">h</span>
                     </div>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-                    <span className="text-xs font-semibold text-blue-300">Média</span>
+                  <div className={`p-3 rounded-xl border space-y-1 ${
+                    theme === 'dark' ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'
+                  }`}>
+                    <span className="text-xs font-semibold text-blue-500">Média</span>
                     <div className="flex items-center gap-2">
                       <input
                         type="number"
@@ -618,14 +658,20 @@ export const AdminSettingsModal: React.FC<AdminSettingsModalProps> = ({
                         onChange={(e) =>
                           setSlaHours({ ...slaHours, media: Number(e.target.value) })
                         }
-                        className="w-16 px-2 py-1 rounded bg-slate-900 border border-slate-700 text-xs text-white font-mono"
+                        className={`w-16 px-2 py-1 rounded border text-xs font-mono font-bold ${
+                          theme === 'dark'
+                            ? 'bg-slate-900 border-slate-700 text-white'
+                            : 'bg-white border-slate-300 text-slate-900'
+                        }`}
                       />
-                      <span className="text-xs text-slate-400">h</span>
+                      <span className="text-xs text-slate-500">h</span>
                     </div>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-                    <span className="text-xs font-semibold text-slate-300">Baixa</span>
+                  <div className={`p-3 rounded-xl border space-y-1 ${
+                    theme === 'dark' ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'
+                  }`}>
+                    <span className="text-xs font-semibold text-slate-500">Baixa</span>
                     <div className="flex items-center gap-2">
                       <input
                         type="number"
@@ -635,9 +681,13 @@ export const AdminSettingsModal: React.FC<AdminSettingsModalProps> = ({
                         onChange={(e) =>
                           setSlaHours({ ...slaHours, baixa: Number(e.target.value) })
                         }
-                        className="w-16 px-2 py-1 rounded bg-slate-900 border border-slate-700 text-xs text-white font-mono"
+                        className={`w-16 px-2 py-1 rounded border text-xs font-mono font-bold ${
+                          theme === 'dark'
+                            ? 'bg-slate-900 border-slate-700 text-white'
+                            : 'bg-white border-slate-300 text-slate-900'
+                        }`}
                       />
-                      <span className="text-xs text-slate-400">h</span>
+                      <span className="text-xs text-slate-500">h</span>
                     </div>
                   </div>
                 </div>

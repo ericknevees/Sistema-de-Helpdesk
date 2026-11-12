@@ -120,7 +120,10 @@ export interface AuditLogEntry {
     | 'equipment_created'
     | 'equipment_updated'
     | 'equipment_moved'
-    | 'equipment_deleted';
+    | 'equipment_deleted'
+    | 'delivery_term_created'
+    | 'delivery_term_signed'
+    | 'gas_sync_performed';
   performedByUid: string;
   performedByName: string;
   performedByEmail: string;
@@ -269,6 +272,49 @@ export interface EquipmentMovement {
   notes?: string;
   maintenanceProvider?: string;
   expectedReturnDate?: string;
+  deliveryTermId?: string;
+}
+
+export interface DeliveryTerm {
+  id: string; // Ex: term-1718293
+  protocol: string; // Ex: EMB-TRM-2026-0042
+  equipmentId: string;
+  equipmentCode: string;
+  equipmentName: string;
+  brand: string;
+  model: string;
+  serialNumber?: string;
+  assetTag?: string;
+  category: EquipmentCategory;
+  condition: EquipmentCondition;
+  recipientName: string;
+  recipientEmail: string;
+  recipientRole?: string;
+  recipientDepartment?: string;
+  branch: string;
+  accessories: string[]; // ['Carregador original', 'Cabo de força', 'Mouse óptico', 'Mochila corporativa']
+  conditionNotes?: string;
+  declarationVersion: string; // '2.4'
+  declarationText: string;
+  status: 'pendente' | 'assinado' | 'cancelado';
+  signedAt?: string;
+  signatureDataUrl?: string; // Canvas base64 PNG data URL
+  signerName?: string;
+  signerIpOrLocation?: string;
+  createdAt: string;
+  createdByUid: string;
+  createdByName: string;
+  createdByEmail: string;
+  externalScriptUrl?: string; // Link to Google Apps Script
+}
+
+export interface GoogleAppsScriptSyncConfig {
+  scriptUrl: string;
+  autoSyncEnabled: boolean;
+  lastSyncAt?: string;
+  lastSyncStatus?: 'success' | 'error' | 'idle';
+  lastSyncMessage?: string;
+  syncedEquipmentsCount?: number;
 }
 
 

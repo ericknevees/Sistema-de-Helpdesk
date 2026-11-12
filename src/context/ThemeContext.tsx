@@ -45,11 +45,15 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (theme === 'light') {
       root.classList.remove('dark');
       root.classList.add('light');
+      document.body.classList.remove('dark');
+      document.body.classList.add('light');
       document.body.style.backgroundColor = '#f8fafc';
       document.body.style.color = '#0f172a';
     } else {
       root.classList.remove('light');
       root.classList.add('dark');
+      document.body.classList.remove('light');
+      document.body.classList.add('dark');
       document.body.style.backgroundColor = '#090d16';
       document.body.style.color = '#f1f5f9';
     }

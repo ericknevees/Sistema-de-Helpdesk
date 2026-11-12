@@ -25,6 +25,21 @@ service cloud.firestore {
       allow update, delete: if false; // Audit logs remain strictly immutable
     }
 
+    // Tech Inventory - Restricted to administrators for management & custody tracking
+    match /inventory/{equipmentId} {
+      allow read, write: if true;
+    }
+
+    match /inventory_movements/{movementId} {
+      allow read, create: if true;
+      allow update, delete: if false; // Inventory movement history is strictly immutable
+    }
+
+    // Delivery Terms & Employee Digital Signatures
+    match /delivery_terms/{termId} {
+      allow read, write: if true;
+    }
+
     match /test/{docId} {
       allow read, write: if true;
     }

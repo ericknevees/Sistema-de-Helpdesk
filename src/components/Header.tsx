@@ -13,6 +13,10 @@ import {
   Laptop,
   Check,
   Building,
+  FileText,
+  Download,
+  ExternalLink,
+  BookOpen,
 } from 'lucide-react';
 import { HelpdeskNotification, UserProfile } from '../types';
 import { NotificationBell } from './NotificationBell';
@@ -86,6 +90,11 @@ export const Header: React.FC<HeaderProps> = ({
         return {
           title: 'Auditoria & Logs',
           subtitle: 'Trilha imutável de eventos e conformidade de governança',
+        };
+      case 'inventory':
+        return {
+          title: 'Estoque Tecnológico',
+          subtitle: 'Rastreamento de custódia, localização física e controle patrimonial',
         };
     }
   };

@@ -346,7 +346,7 @@ export const TicketList: React.FC<TicketListProps> = ({
               className={`w-full pl-10 pr-20 py-2 rounded-xl text-xs sm:text-sm transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
                 theme === 'dark'
                   ? 'bg-slate-950 border border-slate-800 text-slate-100 placeholder-slate-500'
-                  : 'bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400'
+                  : 'bg-white border border-slate-300 text-slate-900 placeholder-slate-400'
               }`}
             />
 
@@ -372,7 +372,7 @@ export const TicketList: React.FC<TicketListProps> = ({
                   ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
                   : theme === 'dark'
                   ? 'bg-slate-950 text-slate-400 border-slate-800 hover:text-slate-200'
-                  : 'bg-slate-50 text-slate-600 border-slate-200 hover:text-slate-900'
+                  : 'bg-white text-slate-700 border-slate-300 hover:text-slate-900 shadow-xs'
               }`}
             >
               Meus Chamados
@@ -382,10 +382,10 @@ export const TicketList: React.FC<TicketListProps> = ({
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as any)}
-              className={`px-3 py-2 rounded-lg border text-xs font-medium focus:outline-none focus:ring-1 focus:ring-emerald-500 ${
+              className={`px-3 py-2 rounded-lg border text-xs font-medium focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer ${
                 theme === 'dark'
                   ? 'bg-slate-950 border-slate-800 text-slate-300'
-                  : 'bg-slate-50 border-slate-200 text-slate-700'
+                  : 'bg-white border-slate-300 text-slate-900 shadow-xs'
               }`}
             >
               <option value="todos">Status: Todos</option>
@@ -400,10 +400,10 @@ export const TicketList: React.FC<TicketListProps> = ({
             <select
               value={priorityFilter}
               onChange={(e) => setPriorityFilter(e.target.value as any)}
-              className={`px-3 py-2 rounded-lg border text-xs font-medium focus:outline-none focus:ring-1 focus:ring-emerald-500 ${
+              className={`px-3 py-2 rounded-lg border text-xs font-medium focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer ${
                 theme === 'dark'
                   ? 'bg-slate-950 border-slate-800 text-slate-300'
-                  : 'bg-slate-50 border-slate-200 text-slate-700'
+                  : 'bg-white border-slate-300 text-slate-900 shadow-xs'
               }`}
             >
               <option value="todas">Prioridade: Todas</option>
@@ -423,10 +423,10 @@ export const TicketList: React.FC<TicketListProps> = ({
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className={`px-2.5 py-2 rounded-lg border text-xs font-medium focus:outline-none focus:ring-1 focus:ring-emerald-500 ${
+                className={`px-2.5 py-2 rounded-lg border text-xs font-medium focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer ${
                   theme === 'dark'
                     ? 'bg-slate-950 border-slate-800 text-slate-300'
-                    : 'bg-slate-50 border-slate-200 text-slate-700'
+                    : 'bg-white border-slate-300 text-slate-900 shadow-xs'
                 }`}
               >
                 <option value="recent">Mais Recentes</option>

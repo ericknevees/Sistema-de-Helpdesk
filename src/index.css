@@ -1,9 +1,76 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   body {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  /* Explicit Light Mode Input Styling: Clean white background with crisp dark text */
+  html:not(.dark) input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+  html:not(.dark) textarea,
+  html:not(.dark) select {
+    color: #0f172a !important;
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+  }
+
+  html:not(.dark) input:disabled,
+  html:not(.dark) textarea:disabled,
+  html:not(.dark) select:disabled {
+    background-color: #f8fafc !important;
+    color: #64748b !important;
+    border-color: #e2e8f0 !important;
+  }
+
+  html:not(.dark) input::placeholder,
+  html:not(.dark) textarea::placeholder {
+    color: #94a3b8 !important;
+    opacity: 1 !important;
+  }
+
+  html:not(.dark) select option {
+    color: #0f172a !important;
+    background-color: #ffffff !important;
+  }
+
+  /* Explicit Dark Mode Input Styling */
+  html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+  html.dark textarea,
+  html.dark select {
+    color: #f8fafc !important;
+    background-color: #020617 !important;
+    border-color: #334155 !important;
+  }
+
+  html.dark input:disabled,
+  html.dark textarea:disabled,
+  html.dark select:disabled {
+    background-color: #0f172a !important;
+    color: #64748b !important;
+    border-color: #1e293b !important;
+  }
+
+  html.dark input::placeholder,
+  html.dark textarea::placeholder {
+    color: #64748b !important;
+    opacity: 1 !important;
+  }
+
+  html.dark select option {
+    color: #f8fafc !important;
+    background-color: #0f172a !important;
+  }
+
+  /* Focus states */
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: none !important;
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25) !important;
   }
 }
 

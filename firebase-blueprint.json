@@ -119,6 +119,24 @@
         "timestamp": { "type": "string" }
       },
       "required": ["equipmentId", "equipmentCode", "type", "newStatus", "newLocation", "performedByUid", "performedByName", "performedByEmail", "timestamp"]
+    },
+    "DeliveryTerm": {
+      "title": "DeliveryTerm",
+      "type": "object",
+      "properties": {
+        "protocol": { "type": "string" },
+        "equipmentId": { "type": "string" },
+        "equipmentCode": { "type": "string" },
+        "equipmentName": { "type": "string" },
+        "recipientName": { "type": "string" },
+        "recipientEmail": { "type": "string" },
+        "status": { "type": "string", "enum": ["pendente", "assinado", "cancelado"] },
+        "signedAt": { "type": "string" },
+        "signatureDataUrl": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "createdByEmail": { "type": "string" }
+      },
+      "required": ["protocol", "equipmentId", "equipmentCode", "recipientName", "recipientEmail", "status", "createdAt"]
     }
   },
   "firestore": {
@@ -145,6 +163,10 @@
     "/inventory_movements/{movementId}": {
       "schema": { "$ref": "#/entities/EquipmentMovement" },
       "description": "Histórico imutável de movimentações de equipamentos (acesso admin)"
+    },
+    "/delivery_terms/{termId}": {
+      "schema": { "$ref": "#/entities/DeliveryTerm" },
+      "description": "Termos de entrega de equipamentos e assinaturas digitais de colaboradores"
     }
   }
 }

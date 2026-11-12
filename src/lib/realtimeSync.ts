@@ -4,14 +4,26 @@
  * alongside Cloud Firestore onSnapshot listeners.
  */
 
-import { Ticket, TicketComment, HelpdeskNotification } from '../types';
+import {
+  Ticket,
+  TicketComment,
+  HelpdeskNotification,
+  Equipment,
+  EquipmentMovement,
+  DeliveryTerm,
+} from '../types';
 
 export type RealtimeEvent =
   | { type: 'TICKET_CREATED'; ticket: Ticket }
   | { type: 'TICKET_UPDATED'; ticket: Ticket }
   | { type: 'TICKETS_SYNC'; tickets: Ticket[] }
   | { type: 'COMMENT_ADDED'; comment: TicketComment; ticketId: string }
-  | { type: 'NOTIFICATION_DISPATCHED'; notification: HelpdeskNotification };
+  | { type: 'NOTIFICATION_DISPATCHED'; notification: HelpdeskNotification }
+  | { type: 'EQUIPMENT_CREATED'; equipment: Equipment }
+  | { type: 'EQUIPMENT_UPDATED'; equipment: Equipment }
+  | { type: 'EQUIPMENT_DELETED'; equipmentId: string }
+  | { type: 'EQUIPMENT_MOVEMENT_RECORDED'; movement: EquipmentMovement }
+  | { type: 'DELIVERY_TERM_SAVED'; term: DeliveryTerm };
 
 type EventHandler = (event: RealtimeEvent) => void;
 

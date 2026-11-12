@@ -10,12 +10,14 @@ import {
   X,
   PlusCircle,
   Building2,
+  Boxes,
+  BookOpen,
 } from 'lucide-react';
 import { EmbragLogo } from './EmbragLogo';
 import { UserProfile } from '../types';
 import { useTheme } from '../context/ThemeContext';
 
-export type AppViewMode = 'list' | 'kanban' | 'stats' | 'audit';
+export type AppViewMode = 'list' | 'kanban' | 'stats' | 'audit' | 'inventory';
 
 interface SidebarProps {
   currentView: AppViewMode;
@@ -28,6 +30,7 @@ interface SidebarProps {
   mobileOpen: boolean;
   onCloseMobile: () => void;
   openTicketsCount: number;
+  onOpenManual?: (mode?: 'user' | 'admin') => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -41,6 +44,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   mobileOpen,
   onCloseMobile,
   openTicketsCount,
+  onOpenManual,
 }) => {
   const { theme } = useTheme();
   const isStaff = currentUser?.role === 'admin' || currentUser?.role === 'agent';
@@ -189,12 +193,45 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Admin Section Divider */}
         {isAdmin && (
-          <div className="pt-4 mt-4 border-t border-slate-800/60">
+          <div className="pt-4 mt-4 border-t border-slate-800/60 dark:border-slate-800">
             {!collapsed && (
               <span className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 block mb-1">
                 Administração
               </span>
             )}
+
+            {/* Estoque Tecnológico */}
+            <button
+              type="button"
+              onClick={() => {
+                onViewChange('inventory');
+                if (mobileOpen) onCloseMobile();
+              }}
+              title={collapsed ? 'Estoque Tecnológico' : undefined}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer mb-1 ${
+                currentView === 'inventory'
+                  ? theme === 'dark'
+                    ? 'bg-emerald-500/15 text-emerald-400 font-bold border border-emerald-500/30'
+                    : 'bg-emerald-50 text-emerald-700 font-bold border border-emerald-200'
+                  : theme === 'dark'
+                  ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-850/60'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+              }`}
+            >
+              <Boxes
+                className={`w-4 h-4 shrink-0 ${
+                  currentView === 'inventory'
+                    ? 'text-emerald-500'
+                    : theme === 'dark'
+                    ? 'text-slate-400'
+                    : 'text-slate-500'
+                }`}
+              />
+              {!collapsed && (
+                <span className="truncate flex-1 text-left">Estoque Tecnológico</span>
+              )}
+            </button>
+
             <button
               type="button"
               onClick={() => {
@@ -215,6 +252,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </button>
           </div>
         )}
+
+        {/* Manual de Instruções (Acesso Exclusivo no Menu Lateral) */}
+        <div className="pt-2 mt-2 border-t border-slate-200 dark:border-slate-800/60">
+          <button
+            type="button"
+            onClick={() => {
+              if (onOpenManual) onOpenManual(isAdmin ? 'admin' : 'user');
+              if (mobileOpen) onCloseMobile();
+            }}
+            title={collapsed ? (isAdmin ? 'Manual TI & Usuário' : 'Manual do Usuário') : undefined}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer border ${
+              theme === 'dark'
+                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300 hover:bg-emerald-500/20 hover:text-emerald-200'
+                : 'bg-emerald-50 border-emerald-200 text-emerald-800 hover:bg-emerald-100 hover:text-emerald-900 shadow-xs'
+            }`}
+          >
+            <BookOpen className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+            {!collapsed && (
+              <span className="truncate flex-1 text-left font-semibold">
+                {isAdmin ? 'Manual do Sistema' : 'Manual do Usuário'}
+              </span>
+            )}
+          </button>
+        </div>
       </nav>
 
       {/* Sidebar Footer with Collapse Toggle */}
